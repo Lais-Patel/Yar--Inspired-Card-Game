@@ -6,7 +6,7 @@ import time
 pygame.init()
 random.seed(0)
 
-screen_width = 1500//3
+screen_width = pygame.display.Info().current_w//2.5
 screen_height = screen_width//(4/3)
 screen_center = (round(screen_width*0.5),round(screen_height*0.5))
 font = pygame.font.Font('freesansbold.ttf', 32)
@@ -33,9 +33,9 @@ class Card:
         self.rect = (0,0,0,0)
         self.center_x = 0
         self.center_y = 0
-        self.width = screen_width//10
-        self.height = self.width*(4/3)
-        self.padding = self.width//7
+        self.width = round(screen_width//10)
+        self.height = round(self.width*(4/3))
+        self.padding = round(self.width//7)
         self.colour_outer = (45, 69, 68)
         self.colour_inner = (92, 125, 124)
     
@@ -61,7 +61,7 @@ class Card:
         x = self.center_x - round(self.width*0.5)
         y = self.center_y - round(self.height*0.5)
         pygame.draw.rect(screen, self.colour_outer, (x,y, self.width, self.height), 0, round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5))
-        pygame.draw.rect(screen, self.colour_inner, (x+round(self.padding*0.5),y+round(self.padding*0.5), self.width-self.padding, self.height-self.padding), 0, self.padding, self.padding, self.padding, self.padding)
+        pygame.draw.rect(screen, self.colour_inner, (x+round(self.padding*0.5),y+round(self.padding*0.5), round(self.width-self.padding), round(self.height-self.padding)), 0, self.padding, self.padding, self.padding, self.padding)
 
     def draw_card(self):
         self.draw_rounded_rect()
