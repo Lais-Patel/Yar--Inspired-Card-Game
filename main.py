@@ -6,12 +6,14 @@ import time
 pygame.init()
 random.seed(0)
 
-screen_width = 1500//3
+screen_width = pygame.display.Info().current_w//1.5
 screen_height = screen_width//(4/3)
 screen_center = (round(screen_width*0.5),round(screen_height*0.5))
 font = pygame.font.Font('freesansbold.ttf', 32)
 letters = [None,"E","D","C","B","A","S"]
 element = [[(98,157,209),(172,203,249),(74,102,172)]]
+mos_pos = []
+card_objects = []
 true_deck = []
 game_run = True
 
@@ -24,24 +26,44 @@ def display_hand(hand):
     for i,card in enumerate(hand):
         card.center_x = screen_center[0]+(card.width+20)*(i-len(hand)//2)
         card.center_y = screen_center[1]+(screen_width//6)
-        card.draw_card()
+        card.update_rect(screen_center[0]+(card.width+card.padding)*(i-len(hand)//2),screen_center[1]+(screen_width//6))
+        card.draw()
 
 class Card:
-    def __init__(self, type_l, type_n):
+    def __init__(self, type_l=1, type_n=1):
         self.type_l = type_l
         self.type_n = type_n
-        self.rect = (0,0,0,0)
         self.center_x = 0
         self.center_y = 0
-        self.width = screen_width//10
-        self.height = self.width*(4/3)
-        self.padding = self.width//7
+        self.width = round(screen_width//10)
+        self.height = round(self.width*(4/3))
+        self.padding = round(self.width//7)
+        self.rect = (self.center_x-self.width//2, self.center_y-self.height//2, self.width, self.height)
+        self.hitbox = self.rect
         self.colour_outer = (45, 69, 68)
         self.colour_inner = (92, 125, 124)
+        self.hovering = False
     
     def __str__(self):
         return f"Card is {self.number_to_letter()}:{self.type_n}"
     
+    def update_rect(self, x, y):
+        if self.hovering == True:
+            y += self.padding*2
+            print("Debug")
+        self.center_x = x
+        self.center_y = y
+        self.rect = (self.center_x-self.width//2, self.center_y-self.height//2, self.width, self.height)
+        self.hitbox = self.rect
+
+    def hover(self, bool):
+        if bool == True:
+            #self.center_y -= 4
+            self.rect = (self.hitbox[0], self.hitbox[1]-self.padding*3, self.hitbox[2], self.hitbox[3])
+        else:
+            #self.center_y += 4
+            self.rect = (self.hitbox[0], self.hitbox[1], self.hitbox[2], self.hitbox[3])
+
     def number_to_letter(self):
         match self.type_l:
             case 1:
@@ -58,20 +80,18 @@ class Card:
                 return "S"
             
     def draw_rounded_rect(self):
-        x = self.center_x - round(self.width*0.5)
-        y = self.center_y - round(self.height*0.5)
-        pygame.draw.rect(screen, self.colour_outer, (x,y, self.width, self.height), 0, round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5))
-        pygame.draw.rect(screen, self.colour_inner, (x+round(self.padding*0.5),y+round(self.padding*0.5), self.width-self.padding, self.height-self.padding), 0, self.padding, self.padding, self.padding, self.padding)
+        pygame.draw.rect(screen, self.colour_outer, self.rect, 0, round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5))
+        pygame.draw.rect(screen, self.colour_inner, (self.rect[0]+round(self.padding*0.5),self.rect[1]+round(self.padding*0.5), round(self.rect[2]-self.padding), round(self.rect[3]-self.padding)), 0, self.padding, self.padding, self.padding, self.padding)
 
-    def draw_card(self):
+    def draw(self):
         self.draw_rounded_rect()
         text = pygame.font.Font('freesansbold.ttf', self.width//2).render(str(letters[self.type_l]), True, self.colour_outer)
         textRect = text.get_rect()
-        textRect.center = (self.center_x-self.width//4,self.center_y-self.height//4)
+        textRect.center = (self.rect[0]+self.rect[2]//4,self.rect[1]+self.rect[3]//4)
         screen.blit(text, textRect)
         text = pygame.font.Font('freesansbold.ttf', self.width//2).render(str(self.type_n), True, self.colour_outer)
         textRect = text.get_rect()
-        textRect.center = (self.center_x+self.width//4,self.center_y+self.height//4)
+        textRect.center = (self.rect[0]+round(3/4*self.rect[2]),self.rect[1]+round(3/4*self.rect[3]))
         screen.blit(text, textRect)
 
 def hand_check(values):
@@ -129,9 +149,11 @@ def score_hand(played_hand):
 def play_game():
     deck = true_deck.copy()
     hand = []
+    card_objects.clear()
     for i in range(0,7):
         hand.append(random.choice(deck))
         deck.remove(hand[i])
+        card_objects.append(hand[i])
 
     display_hand(hand)
 
@@ -147,6 +169,18 @@ while game_run:
             game_run = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             play_game()
+    mos_pos = pygame.mouse.get_pos()
+    #print(mos_pos)
+    screen.fill((200,200,200))
+    for card in card_objects:
+        #print(card.hitbox,card.rect)
+        #print(f"{card.rect[0]} <= {mos_pos[0]} <= {card.rect[2]} and {card.rect[1]} <= {mos_pos[1]} <= {card.rect[3]} {card.rect}")
+        if card.hitbox[0] <= mos_pos[0] <= card.hitbox[0]+card.hitbox[2] and card.hitbox[1] <= mos_pos[1] <= card.hitbox[1]+card.hitbox[3]:
+            card.hover(True)
+        else:
+            card.hover(False)
+        card.draw()
+        #pygame.draw.rect(screen, (255,0,0), card.rect)
     pygame.display.flip()
 
 
