@@ -40,28 +40,24 @@ class Card:
         self.padding = round(self.width//7)
         self.rect = (self.center_x-self.width//2, self.center_y-self.height//2, self.width, self.height)
         self.hitbox = self.rect
-        self.colour_outer = (45, 69, 68)
-        self.colour_inner = (92, 125, 124)
-        self.hovering = False
+        self.colour_inner = (92, 125, 124) #(92, 125, 124) (51, 231, 247)
+        self.colour_outer = (min(255,self.colour_inner[0]-40), min(255,self.colour_inner[1]-40), min(255,self.colour_inner[2]-40))
+        self.colour_i_selected = 0
+        self.selected = False
     
     def __str__(self):
         return f"Card is {self.number_to_letter()}:{self.type_n}"
     
     def update_rect(self, x, y):
-        if self.hovering == True:
-            y += self.padding*2
-            print("Debug")
         self.center_x = x
         self.center_y = y
         self.rect = (self.center_x-self.width//2, self.center_y-self.height//2, self.width, self.height)
         self.hitbox = self.rect
 
-    def hover(self, bool):
-        if bool == True:
-            #self.center_y -= 4
+    def hover(self, hovering):
+        if hovering or self.selected:
             self.rect = (self.hitbox[0], self.hitbox[1]-self.padding*3, self.hitbox[2], self.hitbox[3])
         else:
-            #self.center_y += 4
             self.rect = (self.hitbox[0], self.hitbox[1], self.hitbox[2], self.hitbox[3])
 
     def number_to_letter(self):
@@ -164,23 +160,31 @@ for i in range(1,6):
         true_deck.append(Card(i,j))
 
 while game_run:
+
     for event in pygame.event.get():
+        key_pressed = pygame.key.get_pressed()
         if event.type == pygame.QUIT:
             game_run = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if key_pressed[pygame.K_r]:
             play_game()
-    mos_pos = pygame.mouse.get_pos()
-    #print(mos_pos)
+
+        mos_pos = pygame.mouse.get_pos()
+
+        for card in card_objects:
+            if card.hitbox[0] <= mos_pos[0] <= card.hitbox[0]+card.hitbox[2] and card.hitbox[1] <= mos_pos[1] <= card.hitbox[1]+card.hitbox[3]:
+                card.hover(True)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    card.selected = not card.selected
+            else:
+                card.hover(False)
+
     screen.fill((200,200,200))
     for card in card_objects:
-        #print(card.hitbox,card.rect)
-        #print(f"{card.rect[0]} <= {mos_pos[0]} <= {card.rect[2]} and {card.rect[1]} <= {mos_pos[1]} <= {card.rect[3]} {card.rect}")
-        if card.hitbox[0] <= mos_pos[0] <= card.hitbox[0]+card.hitbox[2] and card.hitbox[1] <= mos_pos[1] <= card.hitbox[1]+card.hitbox[3]:
-            card.hover(True)
-        else:
-            card.hover(False)
         card.draw()
+
         #pygame.draw.rect(screen, (255,0,0), card.rect)
+        #pygame.draw.rect(screen, (0,0,255), card.hitbox)
+
     pygame.display.flip()
 
 
