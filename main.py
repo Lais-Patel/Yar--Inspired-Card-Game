@@ -6,7 +6,7 @@ import time
 pygame.init()
 random.seed(0)
 
-screen_width = pygame.display.Info().current_w//2.5
+screen_width = pygame.display.Info().current_w//1
 screen_height = screen_width//(4/3)
 screen_center = (round(screen_width*0.5),round(screen_height*0.5))
 font = pygame.font.Font('freesansbold.ttf', 32)
@@ -24,24 +24,30 @@ def display_hand(hand):
     for i,card in enumerate(hand):
         card.center_x = screen_center[0]+(card.width+20)*(i-len(hand)//2)
         card.center_y = screen_center[1]+(screen_width//6)
+        card.update_rect(screen_center[0]+(card.width+card.padding)*(i-len(hand)//2),screen_center[1]+(screen_width//6))
         card.draw_card()
 
 class Card:
     def __init__(self, type_l, type_n):
         self.type_l = type_l
         self.type_n = type_n
-        self.rect = (0,0,0,0)
         self.center_x = 0
         self.center_y = 0
         self.width = round(screen_width//10)
         self.height = round(self.width*(4/3))
         self.padding = round(self.width//7)
+        self.rect = (self.center_x-self.width//2, self.center_y-self.height//2, self.width, self.height)
         self.colour_outer = (45, 69, 68)
         self.colour_inner = (92, 125, 124)
     
     def __str__(self):
         return f"Card is {self.number_to_letter()}:{self.type_n}"
     
+    def update_rect(self, x, y):
+        self.center_x = x
+        self.center_y = y
+        self.rect = (x-self.width//2, y-self.height//2, self.width, self.height)
+
     def number_to_letter(self):
         match self.type_l:
             case 1:
@@ -60,8 +66,8 @@ class Card:
     def draw_rounded_rect(self):
         x = self.center_x - round(self.width*0.5)
         y = self.center_y - round(self.height*0.5)
-        pygame.draw.rect(screen, self.colour_outer, (x,y, self.width, self.height), 0, round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5))
-        pygame.draw.rect(screen, self.colour_inner, (x+round(self.padding*0.5),y+round(self.padding*0.5), round(self.width-self.padding), round(self.height-self.padding)), 0, self.padding, self.padding, self.padding, self.padding)
+        pygame.draw.rect(screen, self.colour_outer, self.rect, 0, round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5))
+        pygame.draw.rect(screen, self.colour_inner, (self.rect[0]+round(self.padding*0.5),self.rect[1]+round(self.padding*0.5), round(self.rect[2]-self.padding), round(self.rect[3]-self.padding)), 0, self.padding, self.padding, self.padding, self.padding)
 
     def draw_card(self):
         self.draw_rounded_rect()
