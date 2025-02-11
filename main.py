@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import time
 
 pygame.init()
 random.seed(0)
@@ -19,34 +20,26 @@ def innit_screen(width=500,height=500):
     screen = pygame.display.set_mode((width, height))
     screen.fill((200,200,200))
 
-def draw_rounded_rect(center_x,center_y,width,height,padding=20,colour_outer=(45, 69, 68),colour_inner=(92, 125, 124)):
-    x = center_x - round(width*0.5)
-    y = center_y - round(height*0.5)
-    pygame.draw.rect(screen, colour_outer, (x,y, width, height), 0, round(padding*1.5), round(padding*1.5), round(padding*1.5), round(padding*1.5))
-    pygame.draw.rect(screen, colour_inner, (x+round(padding*0.5),y+round(padding*0.5), width-padding, height-padding), 0, padding, padding, padding, padding)
-
-def draw_card(center_x,center_y,width,height,padding=20,type_l=5,type_n=5,colour_inner=(92, 125, 124),colour_outer=(45, 69, 68)):
-    draw_rounded_rect(center_x,center_y,width,height,padding,colour_outer,colour_inner)
-    text = pygame.font.Font('freesansbold.ttf', width//2).render(str(letters[type_l]), True, colour_outer)
-    textRect = text.get_rect()
-    textRect.center = (center_x-width//4,center_y-height//4)
-    screen.blit(text, textRect)
-    text = pygame.font.Font('freesansbold.ttf', width//2).render(str(type_n), True, colour_outer)
-    textRect = text.get_rect()
-    textRect.center = (center_x+width//4,center_y+height//4)
-    screen.blit(text, textRect)
-
 def display_hand(hand):
     width = 150
     height = 200
     for i,card in enumerate(hand):
-        draw_card(screen_center[0]+(width+20)*(i-len(hand)//2),screen_center[1]+250,width,height,20,card.type_l,card.type_n)
-    pygame.Rect(hand[2]).move(20,20)
+        card.center_x = screen_center[0]+(card.width+20)*(i-len(hand)//2)
+        card.center_y = screen_center[1]+250
+        card.draw_card()
 
 class Card:
     def __init__(self, type_l, type_n):
         self.type_l = type_l
         self.type_n = type_n
+        self.rect = (0,0,0,0)
+        self.center_x = 0
+        self.center_y = 0
+        self.width = 150
+        self.height = 200
+        self.padding = 20
+        self.colour_outer = (45, 69, 68)
+        self.colour_inner = (92, 125, 124)
     
     def __str__(self):
         return f"Card is {self.number_to_letter()}:{self.type_n}"
@@ -65,6 +58,23 @@ class Card:
                 return "A"
             case 6:
                 return "S"
+            
+    def draw_rounded_rect(self):
+        x = self.center_x - round(self.width*0.5)
+        y = self.center_y - round(self.height*0.5)
+        pygame.draw.rect(screen, self.colour_outer, (x,y, self.width, self.height), 0, round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5))
+        pygame.draw.rect(screen, self.colour_inner, (x+round(self.padding*0.5),y+round(self.padding*0.5), self.width-self.padding, self.height-self.padding), 0, self.padding, self.padding, self.padding, self.padding)
+
+    def draw_card(self):
+        self.draw_rounded_rect()
+        text = pygame.font.Font('freesansbold.ttf', self.width//2).render(str(letters[self.type_l]), True, self.colour_outer)
+        textRect = text.get_rect()
+        textRect.center = (self.center_x-self.width//4,self.center_y-self.height//4)
+        screen.blit(text, textRect)
+        text = pygame.font.Font('freesansbold.ttf', self.width//2).render(str(self.type_n), True, self.colour_outer)
+        textRect = text.get_rect()
+        textRect.center = (self.center_x+self.width//4,self.center_y+self.height//4)
+        screen.blit(text, textRect)
 
 def hand_check(values):
     mult = 0
