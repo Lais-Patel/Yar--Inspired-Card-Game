@@ -27,23 +27,21 @@ def draw_rounded_rect(center_x,center_y,width,height,padding=20,colour_outer=(45
 
 def draw_card(center_x,center_y,width,height,padding=20,type_l=5,type_n=5,colour_inner=(92, 125, 124),colour_outer=(45, 69, 68)):
     draw_rounded_rect(center_x,center_y,width,height,padding,colour_outer,colour_inner)
-    text = pygame.font.Font('freesansbold.ttf', padding*5).render(str(letters[type_l]), True, colour_outer)
+    text = pygame.font.Font('freesansbold.ttf', width//2).render(str(letters[type_l]), True, colour_outer)
     textRect = text.get_rect()
     textRect.center = (center_x-width//4,center_y-height//4)
     screen.blit(text, textRect)
-    text = pygame.font.Font('freesansbold.ttf', padding*5).render(str(type_n), True, colour_outer)
+    text = pygame.font.Font('freesansbold.ttf', width//2).render(str(type_n), True, colour_outer)
     textRect = text.get_rect()
     textRect.center = (center_x+width//4,center_y+height//4)
     screen.blit(text, textRect)
 
 def display_hand(hand):
-    width = 200
-    height = 267
-    draw_card(screen_center[0]-width*2-40,screen_center[1],width,height,20,hand[0].type_l,hand[0].type_n)
-    draw_card(screen_center[0]-width*1-20,screen_center[1],width,height,20,hand[1].type_l,hand[1].type_n)
-    draw_card(screen_center[0]-width*0-0 ,screen_center[1],width,height,20,hand[2].type_l,hand[2].type_n)
-    draw_card(screen_center[0]+width*1+20,screen_center[1],width,height,20,hand[3].type_l,hand[3].type_n)
-    draw_card(screen_center[0]+width*2+40,screen_center[1],width,height,20,hand[4].type_l,hand[4].type_n)
+    width = 150
+    height = 200
+    for i,card in enumerate(hand):
+        draw_card(screen_center[0]+(width+20)*(i-len(hand)//2),screen_center[1]+250,width,height,20,card.type_l,card.type_n)
+    pygame.Rect(hand[2]).move(20,20)
 
 class Card:
     def __init__(self, type_l, type_n):
@@ -79,8 +77,6 @@ def hand_check(values):
         score += value
     for key in value_dict:
         dict_values.append(value_dict[key])
-
-    #print(values,dict_values)
 
     if 5 in dict_values:
         mult = 2
@@ -125,17 +121,11 @@ def score_hand(played_hand):
 def play_game():
     deck = true_deck.copy()
     hand = []
-    for i in range(0,5):
+    for i in range(0,7):
         hand.append(random.choice(deck))
         deck.remove(hand[i])
 
-    for card in hand:
-        print(card)
-
     display_hand(hand)
-
-    #print(len(deck))
-    #print("score",score_hand(hand))
 
 innit_screen(screen_width, screen_height)
 
