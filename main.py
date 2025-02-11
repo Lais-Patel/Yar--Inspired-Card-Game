@@ -12,6 +12,7 @@ screen_center = (round(screen_width*0.5),round(screen_height*0.5))
 font = pygame.font.Font('freesansbold.ttf', 32)
 letters = [None,"E","D","C","B","A","S"]
 element = [[(98,157,209),(172,203,249),(74,102,172)]]
+card_objects = []
 true_deck = []
 game_run = True
 
@@ -25,7 +26,7 @@ def display_hand(hand):
         card.center_x = screen_center[0]+(card.width+20)*(i-len(hand)//2)
         card.center_y = screen_center[1]+(screen_width//6)
         card.update_rect(screen_center[0]+(card.width+card.padding)*(i-len(hand)//2),screen_center[1]+(screen_width//6))
-        card.draw_card()
+        card.draw()
 
 class Card:
     def __init__(self, type_l, type_n):
@@ -69,7 +70,7 @@ class Card:
         pygame.draw.rect(screen, self.colour_outer, self.rect, 0, round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5), round(self.padding*1.5))
         pygame.draw.rect(screen, self.colour_inner, (self.rect[0]+round(self.padding*0.5),self.rect[1]+round(self.padding*0.5), round(self.rect[2]-self.padding), round(self.rect[3]-self.padding)), 0, self.padding, self.padding, self.padding, self.padding)
 
-    def draw_card(self):
+    def draw(self):
         self.draw_rounded_rect()
         text = pygame.font.Font('freesansbold.ttf', self.width//2).render(str(letters[self.type_l]), True, self.colour_outer)
         textRect = text.get_rect()
@@ -135,9 +136,11 @@ def score_hand(played_hand):
 def play_game():
     deck = true_deck.copy()
     hand = []
+    card_objects.clear()
     for i in range(0,7):
         hand.append(random.choice(deck))
         deck.remove(hand[i])
+        card_objects.append(hand[i])
 
     display_hand(hand)
 
@@ -153,6 +156,9 @@ while game_run:
             game_run = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             play_game()
+    screen.fill((200,200,200))
+    for item in card_objects:
+        item.draw()
     pygame.display.flip()
 
 
