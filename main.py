@@ -40,9 +40,9 @@ class Card:
         self.padding = round(self.width//7)
         self.rect = (self.center_x-self.width//2, self.center_y-self.height//2, self.width, self.height)
         self.hitbox = self.rect
-        self.colour_inner = (92, 125, 124) #(92, 125, 124) (51, 231, 247)
-        self.colour_outer = (min(255,self.colour_inner[0]-40), min(255,self.colour_inner[1]-40), min(255,self.colour_inner[2]-40))
-        self.colour_i_selected = 0
+        self.colour_inner = (51, 231, 247) #(92, 125, 124) (51, 231, 247)
+        self.colour_outer = (max(0,self.colour_inner[0]-40), max(0,self.colour_inner[1]-40), max(0,self.colour_inner[2]-40))
+        self.colour = self.colour_inner
         self.selected = False
     
     def __str__(self):
@@ -55,10 +55,15 @@ class Card:
         self.hitbox = self.rect
 
     def hover(self, hovering):
-        if hovering or self.selected:
+        if hovering:
             self.rect = (self.hitbox[0], self.hitbox[1]-self.padding*3, self.hitbox[2], self.hitbox[3])
+            self.colour_inner = (min(255,self.colour[0]+40), min(255,self.colour[1]+40), min(255,self.colour[2]+40))
+        elif self.selected:
+            self.rect = (self.hitbox[0], self.hitbox[1]-self.padding*3, self.hitbox[2], self.hitbox[3])
+            self.colour_inner = (self.colour[0], self.colour[1], self.colour[2])
         else:
             self.rect = (self.hitbox[0], self.hitbox[1], self.hitbox[2], self.hitbox[3])
+            self.colour_inner = (self.colour[0], self.colour[1], self.colour[2])
 
     def number_to_letter(self):
         match self.type_l:
