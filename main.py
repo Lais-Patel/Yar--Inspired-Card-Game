@@ -6,8 +6,8 @@ import time
 pygame.init()
 random.seed(0)
 
-screen_width = 1500
-screen_height = 1125
+screen_width = 1500//3
+screen_height = screen_width//(4/3)
 screen_center = (round(screen_width*0.5),round(screen_height*0.5))
 font = pygame.font.Font('freesansbold.ttf', 32)
 letters = [None,"E","D","C","B","A","S"]
@@ -21,11 +21,9 @@ def innit_screen(width=500,height=500):
     screen.fill((200,200,200))
 
 def display_hand(hand):
-    width = 150
-    height = 200
     for i,card in enumerate(hand):
         card.center_x = screen_center[0]+(card.width+20)*(i-len(hand)//2)
-        card.center_y = screen_center[1]+250
+        card.center_y = screen_center[1]+(screen_width//6)
         card.draw_card()
 
 class Card:
@@ -35,9 +33,9 @@ class Card:
         self.rect = (0,0,0,0)
         self.center_x = 0
         self.center_y = 0
-        self.width = 150
-        self.height = 200
-        self.padding = 20
+        self.width = screen_width//10
+        self.height = self.width*(4/3)
+        self.padding = self.width//7
         self.colour_outer = (45, 69, 68)
         self.colour_inner = (92, 125, 124)
     
